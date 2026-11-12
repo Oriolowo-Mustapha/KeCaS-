@@ -1,0 +1,45 @@
+# Publishes the API as a Release-mode artifact: on version tags (v*) or on
+# demand. Secrets (.env content) are runtime configuration and are supplied
+# on the deployment host, never baked into the artifact.
+name: Backend publish
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Backend/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Publish (Release)
+        run: dotnet publish src/kecas.api -c Release -o publish
+        working-directory: Backend
+
+      - name: Verify no .env leaked into the artifact
+        run: |
+          if [ -e Backend/publish/.env ]; then
+            echo "::error::.env must never be part of the publish output"; exit 1
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kecas-api
+          path: Backend/publish/

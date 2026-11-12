@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Let Infrastructure (EF Core) and tests rehydrate value objects via their internal constructors. -->
+    <InternalsVisibleTo Include="kecas.infrastructure" />
+    <InternalsVisibleTo Include="kecas.domain.tests" />
+  </ItemGroup>
+
+</Project>

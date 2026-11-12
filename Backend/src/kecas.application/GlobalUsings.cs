@@ -1,0 +1,12 @@
+global using kecas.application.abstractions.messaging;
+global using kecas.domain.abstractions;
+global using kecas.domain.bookings;
+global using kecas.domain.common;
+global using kecas.domain.fares;
+global using kecas.domain.feedback;
+global using kecas.domain.fleet;
+global using kecas.domain.network;
+global using kecas.domain.notices;
+global using kecas.domain.payments;
+global using kecas.domain.trips;
+global using kecas.domain.users;

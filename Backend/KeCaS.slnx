@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/kecas.api/kecas.api.csproj" />
+    <Project Path="src/kecas.application/kecas.application.csproj" />
+    <Project Path="src/kecas.domain/kecas.domain.csproj" />
+    <Project Path="src/kecas.infrastructure/kecas.infrastructure.csproj" />
+  </Folder>
+</Solution>

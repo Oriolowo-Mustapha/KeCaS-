@@ -1,0 +1,50 @@
+# Backend CI: every push/PR touching Backend must build clean (0 warnings).
+# The app needs no secrets to compile, so no environment setup is required.
+# When unit test projects are added, add a "dotnet test" step after build.
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Backend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "Backend/**"
+      - ".github/workflows/backend-ci.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Backend/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore KeCaS.slnx
+        working-directory: Backend
+
+      # -warnaserror keeps the zero-warning build standard honest.
+      - name: Build
+        run: dotnet build KeCaS.slnx --no-restore -warnaserror
+        working-directory: Backend
+
+      # Placeholder for when the first test project lands:
+      # - name: Test
+      #   run: dotnet test KeCaS.slnx --no-build --verbosity normal
+      #   working-directory: Backend
