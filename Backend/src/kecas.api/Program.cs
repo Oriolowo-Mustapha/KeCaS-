@@ -32,6 +32,13 @@ if (args.Contains("encrypt-licences"))
     return;
 }
 
+// Read-only status check of licence encryption (no DB writes).
+if (args.Contains("check-licences"))
+{
+    await LicenceEncryptionRunner.CheckAsync();
+    return;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 // §11.4: structured logs with request IDs; no sensitive values in logs.

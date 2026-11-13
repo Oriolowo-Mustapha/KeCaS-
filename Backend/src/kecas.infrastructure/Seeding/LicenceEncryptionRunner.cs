@@ -59,4 +59,36 @@ public static class LicenceEncryptionRunner
     }
 
     private sealed record LicenceRow(Guid Id, string LicenceNumber);
+
+    /// <summary>
+    /// Read-only status check (no writes): reports how many driver rows hold
+    /// encrypted licence numbers versus legacy plaintext.
+    /// Run with:  dotnet run --project src/kecas.api -- check-licences
+    /// </summary>
+    public static async Task CheckAsync()
+    {
+        DotEnv.Load();
+
+        var configuration = new ConfigurationBuilder()
+            .AddEnvironmentVariables()
+            .Build();
+
+        var services = new ServiceCollection();
+        services.AddApplication();
+        services.AddInfrastructure(configuration);
+
+        await using var provider = services.BuildServiceProvider();
+        var context = provider.GetRequiredService<ApplicationDbContext>();
+
+        var rows = await context.Database
+            .SqlQuery<LicenceRow>($"SELECT id, licence_number FROM drivers")
+            .ToListAsync();
+
+        var encrypted = rows.Count(r => r.LicenceNumber.StartsWith("enc1:", StringComparison.Ordinal));
+        Console.WriteLine($"Driver licences: {encrypted}/{rows.Count} encrypted (AES-256-GCM, enc1: prefix).");
+        if (encrypted < rows.Count)
+        {
+            Console.WriteLine("Plaintext rows remain — run `dotnet run --project src/kecas.api -- encrypt-licences`.");
+        }
+    }
 }
